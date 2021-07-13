@@ -1,4 +1,8 @@
-import { registerCommands, registerEvents } from './utils/registry';
+import {
+    initializeEvents,
+    registerCommands,
+    registerEvents,
+} from './utils/registry';
 import config from '../slappey.json';
 import DiscordClient from './client/client';
 import { connectDatabase } from './database/Mongoose';
@@ -30,10 +34,13 @@ const client = new DiscordClient({
 
 (async () => {
     client.prefix = config.prefix || client.prefix;
+
     await registerCommands(client, '../commands');
     await registerEvents(client, '../events');
 
     await connectDatabase(config.MONGO_URI);
 
     await client.login(config.token);
+
+    await client.initialize();
 })();

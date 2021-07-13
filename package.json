@@ -14,7 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "github:discordjs/discord.js",
-    "mongoose": "^5.13.2"
+    "mongoose": "^5.13.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/jest": "^26.0.24",

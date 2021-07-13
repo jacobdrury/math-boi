@@ -2,7 +2,7 @@
 import { GuildMember } from 'discord.js';
 import BaseEvent from '../../utils/structures/BaseEvent';
 import DiscordClient from '../../client/client';
-import Users from '../../database/models/Users';
+import Users from '../../database/models/User';
 import { CreateUser } from '../../utils/helpers/UserHelpers';
 
 export default class GuildMemberAddEvent extends BaseEvent {

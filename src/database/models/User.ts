@@ -1,18 +1,23 @@
-import { GuildMember } from 'discord.js';
 import { model, Schema, SchemaTypes } from 'mongoose';
 
 export interface UserSchemaInterface {
-    username: string;
+    guildId: string;
     discordId: string;
+    username: string;
     inServer: boolean;
 }
 
 const UserSchema = new Schema({
-    username: SchemaTypes.String,
     discordId: {
         type: SchemaTypes.String,
         required: true,
+        unique: true,
     },
+    guild: {
+        type: SchemaTypes.String,
+        required: true,
+    },
+    username: SchemaTypes.String,
     inServer: {
         type: SchemaTypes.Boolean,
         default: true,
