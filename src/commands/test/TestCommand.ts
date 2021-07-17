@@ -19,12 +19,12 @@ export default class PingCommand extends BaseCommand {
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {
-        await client.logManager.initLogChannel(
-            LogType.message,
-            message.channel as TextChannel
-        );
+        // await client.logManager.initLogChannel(
+        //     LogType.mod,
+        //     message.channel as TextChannel
+        // );
 
-        return;
+        // return;
         const staffMember = await message.guild.members.fetch(message.author);
 
         const [search, ...reason] = args;

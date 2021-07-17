@@ -1,12 +1,9 @@
-import {
-    initializeEvents,
-    registerCommands,
-    registerEvents,
-} from './utils/registry';
+import { registerCommands, registerEvents } from './utils/registry';
 import config from '../slappey.json';
 import DiscordClient from './client/client';
 import { connectDatabase } from './database/Mongoose';
 import { Intents } from 'discord.js';
+import LogManager from './client/LogManager';
 
 const flags = Intents.FLAGS;
 const intents = new Intents().add(
@@ -34,6 +31,7 @@ const client = new DiscordClient({
 
 (async () => {
     client.prefix = config.prefix || client.prefix;
+    client.logManager = new LogManager();
 
     await registerCommands(client, '../commands');
     await registerEvents(client, '../events');
@@ -41,6 +39,4 @@ const client = new DiscordClient({
     await connectDatabase(config.MONGO_URI);
 
     await client.login(config.token);
-
-    await client.initialize();
 })();

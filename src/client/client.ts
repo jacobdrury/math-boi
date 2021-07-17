@@ -15,8 +15,17 @@ export default class DiscordClient extends Client {
     }
 
     async initialize() {
+        await this.logManager.initialize(this);
         await initializeEvents(this);
-        this._logManager = new LogManager(this);
+        console.log('Client Initialized!');
+    }
+
+    set logManager(logManager: LogManager) {
+        this._logManager = logManager;
+    }
+
+    get logManager(): LogManager {
+        return this._logManager;
     }
 
     get commands(): Collection<string, BaseCommand> {
@@ -25,10 +34,6 @@ export default class DiscordClient extends Client {
 
     get events(): Collection<string, BaseEvent> {
         return this._events;
-    }
-
-    get logManager() {
-        return this._logManager;
     }
 
     get prefix(): string {

@@ -1,12 +1,12 @@
-import { model, Schema, SchemaTypes } from 'mongoose';
+import { model, Schema, SchemaTypes, Types } from 'mongoose';
 
 export interface InfractionSchemaInterface {
-    infractionId: string;
+    id: string;
     userId: string;
     staffId: string;
-    infractionType: InfractionType;
+    type: InfractionType;
     date: Date;
-    reason: String;
+    reason: string;
 }
 
 export enum InfractionType {
@@ -17,9 +17,10 @@ export enum InfractionType {
 }
 
 const InfractionSchema = new Schema({
-    infractionId: {
+    id: {
         type: SchemaTypes.String,
         required: true,
+        unique: true,
     },
     userId: {
         type: SchemaTypes.String,
@@ -29,7 +30,7 @@ const InfractionSchema = new Schema({
         type: SchemaTypes.String,
         required: true,
     },
-    infractionType: {
+    type: {
         type: SchemaTypes.Number,
         required: true,
     },

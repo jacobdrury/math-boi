@@ -12,31 +12,42 @@ export default class LogManager {
     private _botLog: Log;
     private _client: DiscordClient;
 
-    constructor(client: DiscordClient) {
+    constructor() {
+        this._messageLog = new Log(LogType.message);
+        this._userLog = new Log(LogType.user);
+        this._joinLeaveLog = new Log(LogType.joinleave);
+        this._modLog = new Log(LogType.mod);
+        this._botLog = new Log(LogType.bot);
+    }
+
+    async initialize(client: DiscordClient) {
         this._client = client;
-        this._messageLog = new Log(client, LogType.message);
-        this._userLog = new Log(client, LogType.user);
-        this._joinLeaveLog = new Log(client, LogType.joinleave);
-        this._modLog = new Log(client, LogType.mod);
-        this._botLog = new Log(client, LogType.bot);
+
+        await Promise.all([
+            this._messageLog.initialize(client),
+            this._userLog.initialize(client),
+            this._joinLeaveLog.initialize(client),
+            this._modLog.initialize(client),
+            this._botLog.initialize(client),
+        ]);
     }
 
     refreshLog(logType: LogType) {
         switch (logType) {
             case LogType.message:
-                this._messageLog = new Log(this._client, LogType.message);
+                this._messageLog.initialize(this._client);
                 break;
             case LogType.user:
-                this._userLog = new Log(this._client, LogType.user);
+                this._userLog.initialize(this._client);
                 break;
             case LogType.joinleave:
-                this._messageLog = new Log(this._client, LogType.joinleave);
+                this._messageLog.initialize(this._client);
                 break;
             case LogType.mod:
-                this._userLog = new Log(this._client, LogType.mod);
+                this._userLog.initialize(this._client);
                 break;
             case LogType.bot:
-                this._userLog = new Log(this._client, LogType.bot);
+                this._userLog.initialize(this._client);
                 break;
         }
     }
@@ -87,12 +98,14 @@ class Log {
     channel: TextChannel;
     webhook: WebhookClient;
 
-    constructor(client: DiscordClient, logType: LogType) {
-        (async () => {
-            const config = await this.loadLogConfig(logType);
+    constructor(logType: LogType) {
+        this.logType = logType;
+    }
 
-            if (!config) return;
+    async initialize(client: DiscordClient) {
+        const config = await this.loadLogConfig(this.logType);
 
+        if (config) {
             const guild = await client.guilds.fetch(
                 config.guildId as Snowflake
             );
@@ -108,7 +121,7 @@ class Log {
                 config.WebhookId as Snowflake,
                 config.WebhookToken
             );
-        })();
+        }
     }
 
     private loadLogConfig = async (

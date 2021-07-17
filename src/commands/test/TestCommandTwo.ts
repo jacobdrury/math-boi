@@ -19,8 +19,6 @@ export default class PingCommand extends BaseCommand {
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {
-        await client.logManager.messageLog.webhook.send('Hello');
-
         return;
         const staffMember = await message.guild.members.fetch(message.author);
 
