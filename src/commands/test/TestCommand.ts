@@ -1,17 +1,13 @@
-import {
-    GuildMember,
-    Message,
-    Snowflake,
-    TextChannel,
-    UserResolvable,
-} from 'discord.js';
+import { GuildMember, Message, Snowflake, TextChannel, UserResolvable } from 'discord.js';
 import BaseCommand from '../../utils/structures/BaseCommand';
 import DiscordClient from '../../client/client';
 import Users from '../../database/models/User';
 import { resolveMemberFromMessage } from '../../utils/helpers/GuildHelpers';
-import { InfractionType } from '../../database/models/Infraction';
+import Infraction, { InfractionType } from '../../database/models/Infraction';
 import { generateUuid } from '../../utils/helpers/util';
 import { LogType } from '../../client/LogManager';
+import BaseModerationCommand from '../../utils/structures/BaseModerationCommand';
+import User from '../../database/models/User';
 
 export default class PingCommand extends BaseCommand {
     constructor() {
@@ -19,35 +15,19 @@ export default class PingCommand extends BaseCommand {
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {
-        // await client.logManager.initLogChannel(
-        //     LogType.mod,
-        //     message.channel as TextChannel
-        // );
+        const guildMembers = (await message.guild.members.fetch()).filter((u) => !u.user.bot);
 
-        // return;
-        const staffMember = await message.guild.members.fetch(message.author);
-
-        const [search, ...reason] = args;
-
-        var guildMember = await resolveMemberFromMessage(message, search);
-
-        if (guildMember == null) {
-            message.channel.send({
-                content:
-                    'Please tag the user or provide their ID and try again',
-                reply: {
-                    messageReference: message,
-                },
-            });
-            return;
+        for await (const [id, gm] of guildMembers) {
+            await (
+                await User.create({
+                    guildId: gm.guild.id,
+                    discordId: gm.id,
+                    username: gm.user.username,
+                    inServer: true,
+                })
+            ).save();
         }
 
-        client.emit(
-            'infractionCreate',
-            staffMember,
-            guildMember,
-            reason.join(' '),
-            InfractionType.Warn
-        );
+        console.log('All users added to database');
     }
 }

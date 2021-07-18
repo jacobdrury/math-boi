@@ -2,10 +2,7 @@ import { GuildMember } from 'discord.js';
 import Guilds from '../../database/models/Guild';
 import Users, { UserSchemaInterface } from '../../database/models/User';
 
-export const CreateUser = async (
-    guildMember: GuildMember,
-    modifiers = null
-) => {
+export const CreateUser = async (guildMember: GuildMember, modifiers = null) => {
     let guild = await Guilds.findOne({ guildId: guildMember.guild.id });
 
     if (!guild) {

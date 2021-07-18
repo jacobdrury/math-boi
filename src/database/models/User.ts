@@ -1,10 +1,12 @@
 import { model, Schema, SchemaTypes } from 'mongoose';
+import { AccessLevel } from '../../utils/structures/AccessLevel';
 
 export interface UserSchemaInterface {
     guildId: string;
     discordId: string;
     username: string;
     inServer: boolean;
+    accessLevel: AccessLevel;
 }
 
 const UserSchema = new Schema({
@@ -13,7 +15,7 @@ const UserSchema = new Schema({
         required: true,
         unique: true,
     },
-    guild: {
+    guildId: {
         type: SchemaTypes.String,
         required: true,
     },
@@ -21,6 +23,10 @@ const UserSchema = new Schema({
     inServer: {
         type: SchemaTypes.Boolean,
         default: true,
+    },
+    accessLevel: {
+        type: SchemaTypes.Number,
+        default: AccessLevel.Base,
     },
 });
 

@@ -1,4 +1,4 @@
-import { model, Schema, SchemaTypes, Types } from 'mongoose';
+import { model, Schema, SchemaTypes } from 'mongoose';
 
 export interface InfractionSchemaInterface {
     id: string;

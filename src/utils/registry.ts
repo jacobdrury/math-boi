@@ -40,5 +40,5 @@ export async function registerEvents(client: DiscordClient, dir: string = '') {
 export async function initializeEvents(client: DiscordClient) {
     client.events
         .filter((e) => e.needsInitialization)
-        .forEach(async (event) => await event.init(client));
+        .forEach(async (event) => await event.initialize(client));
 }

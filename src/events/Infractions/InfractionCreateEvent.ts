@@ -1,8 +1,9 @@
 import BaseEvent from '../../utils/structures/BaseEvent';
-import { GuildMember, Message, User, WebhookClient } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import DiscordClient from '../../client/client';
 import Infraction, { InfractionSchemaInterface, InfractionType } from '../../database/models/Infraction';
-import { generateUuid } from '../../utils/helpers/util';
+import { FormatInfractionType, generateUuid, GetColorFromInfractionType } from '../../utils/helpers/util';
+import { Colors } from '../../utils/helpers/Colors';
 
 export default class InfractionCreateEvent extends BaseEvent {
     private client: DiscordClient;
@@ -11,11 +12,17 @@ export default class InfractionCreateEvent extends BaseEvent {
         super('infractionCreate', true);
     }
 
-    async init(client: DiscordClient): Promise<void> {
+    async initialize(client: DiscordClient): Promise<void> {
         this.client = client;
     }
 
-    async run(client: DiscordClient, staffMember: GuildMember, guildMember: GuildMember, reason: string, type: InfractionType) {
+    async run(
+        client: DiscordClient,
+        staffMember: GuildMember,
+        guildMember: GuildMember,
+        reason: string,
+        type: InfractionType
+    ) {
         const infraction = await Infraction.create({
             id: generateUuid(),
             userId: guildMember.user.id,
@@ -27,9 +34,13 @@ export default class InfractionCreateEvent extends BaseEvent {
 
         switch (type) {
             case InfractionType.Kick:
+                console.log('Need to kick member');
+                break;
                 await guildMember.kick(`${reason} - ${staffMember.user.username}`);
                 break;
             case InfractionType.Ban:
+                console.log('Need to ban member');
+                break;
                 await guildMember.ban({
                     reason: `${reason} - ${staffMember.user.username}`,
                 });
@@ -41,28 +52,21 @@ export default class InfractionCreateEvent extends BaseEvent {
         await this.DispatchModeratorLog(infraction, staffMember, guildMember);
     }
 
-    private FormatType(type: InfractionType): String {
-        switch (type) {
-            case InfractionType.Warn:
-                return 'Warn';
-            case InfractionType.Kick:
-                return 'Kick';
-            case InfractionType.Ban:
-                return 'Ban';
-            case InfractionType.Mute:
-                return 'Mute';
-        }
-    }
-
-    private async DispatchModeratorLog(infraction: InfractionSchemaInterface, staffMember: GuildMember, guildMember: GuildMember) {
+    private async DispatchModeratorLog(
+        infraction: InfractionSchemaInterface,
+        staffMember: GuildMember,
+        guildMember: GuildMember
+    ) {
         const modLogChannel = this.client.logManager.modLog.channel;
 
         await modLogChannel.send({
             embeds: [
                 {
-                    color: this.GetColorFromType(infraction.type),
+                    color: GetColorFromInfractionType(infraction.type),
                     author: {
-                        name: `[${this.FormatType(infraction.type).toUpperCase()}] ${guildMember.user.username}#${guildMember.user.discriminator}`,
+                        name: `[${FormatInfractionType(infraction.type).toUpperCase()}] ${guildMember.user.username}#${
+                            guildMember.user.discriminator
+                        }`,
                         iconURL: guildMember.user.avatarURL({
                             dynamic: true,
                         }),
@@ -70,14 +74,13 @@ export default class InfractionCreateEvent extends BaseEvent {
                     description: `Infraction created for user <@${infraction.userId}> (${infraction.userId})`,
                     fields: [
                         {
-                            name: 'Reason',
-                            value: infraction.reason,
-                            inline: true,
+                            name: 'Staff Member',
+                            value: `${staffMember.user.username}#${staffMember.user.discriminator}`,
+                            inline: false,
                         },
                         {
-                            name: 'Staff Member',
-                            value: `<@${staffMember.user.id}> (${staffMember.user.username}#${staffMember.user.discriminator})`,
-                            inline: true,
+                            name: 'Reason',
+                            value: infraction.reason,
                         },
                     ],
                     timestamp: new Date(),
@@ -87,18 +90,5 @@ export default class InfractionCreateEvent extends BaseEvent {
                 },
             ],
         });
-    }
-
-    private GetColorFromType(type: InfractionType): number {
-        switch (type) {
-            case InfractionType.Warn:
-                return 0xffa500;
-            case InfractionType.Kick:
-                return 0xb25afd;
-            case InfractionType.Ban:
-                return 0xff2c02;
-            case InfractionType.Mute:
-                return 0x2162ca;
-        }
     }
 }
