@@ -6,7 +6,9 @@ import BaseModerationCommand from '../../utils/structures/BaseModerationCommand'
 
 export default class WarnCommand extends BaseModerationCommand {
     constructor() {
-        super('ban', 'Moderation', InfractionType.Ban, AccessLevel.Moderator);
+        super('ban', 'Moderation', AccessLevel.Moderator, InfractionType.Ban);
+        this.description = 'Bans a user from the server';
+        this.usage = '<User>';
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {

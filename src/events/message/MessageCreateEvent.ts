@@ -4,6 +4,7 @@ import DiscordClient from '../../client/client';
 import User from '../../database/models/User';
 import { AccessLevel } from '../../utils/structures/AccessLevel';
 import Member from '../../utils/structures/Member';
+import { GetMemberFromMessage } from '../../utils/helpers/UserHelpers';
 
 export default class MessageEvent extends BaseEvent {
     constructor() {
@@ -19,36 +20,11 @@ export default class MessageEvent extends BaseEvent {
 
         if (!command) return;
 
-        const guildMember = message.member;
-        let dbGuildMember = client.staffMembers.get(guildMember.id) ?? client.guildMembers.get(guildMember.id);
+        const member = await GetMemberFromMessage(client, message);
 
-        // If user is not cached, check DB for user
-        if (!dbGuildMember) {
-            const search = await User.findOne({ inServer: true, discordId: guildMember.id });
-            if (!search) {
-                message.channel.send({
-                    content: 'Something went wrong',
-                    reply: {
-                        messageReference: message,
-                    },
-                });
-                return;
-            }
-
-            if (search.accessLevel >= AccessLevel.Staff) client.staffMembers.set(search.discordId, search);
-            else client.guildMembers.set(search.discordId, search);
-
-            dbGuildMember = search;
-        }
-
-        const member = new Member(guildMember, dbGuildMember);
-
-        if (command.AccessLevel > member.accessLevel) {
-            message.channel.send({
+        if (command.accessLevel > member.accessLevel) {
+            message.reply({
                 content: 'You do not have permission to use this command',
-                reply: {
-                    messageReference: message,
-                },
             });
             return;
         }

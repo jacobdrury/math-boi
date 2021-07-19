@@ -1,10 +1,14 @@
 import DiscordClient from '../../client/client';
 
 export default abstract class BaseEvent {
-    constructor(private name: string, public needsInitialization: boolean = false) {}
+    constructor(private _name: string, private _needsInitialization: boolean = false) {}
 
-    getName(): string {
-        return this.name;
+    get name(): string {
+        return this._name;
+    }
+
+    get needsInitialization(): boolean {
+        return this._needsInitialization;
     }
 
     async initialize(client: DiscordClient): Promise<void> {}

@@ -3,25 +3,49 @@ import DiscordClient from '../../client/client';
 import { AccessLevel } from './AccessLevel';
 
 export default abstract class BaseCommand {
-    _accessLevel: AccessLevel;
-    constructor(private name: string, private category: string, private aliases: Array<string> = [], accessLevel: AccessLevel = AccessLevel.Base) {
+    private _accessLevel: AccessLevel;
+    private _description: string = '';
+    private _usage: string = '';
+    private _aliases: Array<string> = [];
+
+    constructor(private _name: string, private _category: string, accessLevel: AccessLevel = AccessLevel.Base) {
         this._accessLevel = accessLevel;
     }
 
-    get AccessLevel(): AccessLevel {
+    get accessLevel(): AccessLevel {
         return this._accessLevel;
     }
 
-    getName(): string {
-        return this.name;
+    get name(): string {
+        return this._name;
     }
 
-    getCategory(): string {
-        return this.category;
+    get category(): string {
+        return this._category;
     }
 
-    getAliases(): Array<string> {
-        return this.aliases;
+    set description(description: string) {
+        this._description = description;
+    }
+
+    get description(): string {
+        return this._description;
+    }
+
+    set usage(usage: string) {
+        this._usage = usage;
+    }
+
+    get usage(): string {
+        return this._usage;
+    }
+
+    set aliases(aliases: Array<string>) {
+        this._aliases = aliases;
+    }
+
+    get aliases(): Array<string> {
+        return this._aliases;
     }
 
     abstract run(client: DiscordClient, message: Message, args: Array<string> | null): Promise<void>;

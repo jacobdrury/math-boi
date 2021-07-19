@@ -4,3 +4,4 @@ slappey.json
 .eslintignore
 .eslintrc.js
 package-lock.json
+dist

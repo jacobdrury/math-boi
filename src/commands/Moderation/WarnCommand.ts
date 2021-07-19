@@ -6,7 +6,9 @@ import BaseModerationCommand from '../../utils/structures/BaseModerationCommand'
 
 export default class WarnCommand extends BaseModerationCommand {
     constructor() {
-        super('warn', 'Moderation', InfractionType.Warn, AccessLevel.Moderator);
+        super('warn', 'Moderation', AccessLevel.Moderator, InfractionType.Warn);
+        this.description = 'Warns a user';
+        this.usage = '<User> <Reason>';
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {

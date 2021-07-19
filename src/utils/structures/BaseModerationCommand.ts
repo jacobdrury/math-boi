@@ -11,10 +11,10 @@ export default abstract class BaseModerationCommand extends BaseCommand {
     constructor(
         name: string,
         category: string,
-        private type: InfractionType,
-        accessLevel: AccessLevel = AccessLevel.Staff
+        accessLevel: AccessLevel = AccessLevel.Staff,
+        private type: InfractionType = null
     ) {
-        super(name, category, [], accessLevel);
+        super(name, category, accessLevel);
     }
 
     async createInfraction(client: DiscordClient, message: Message, args: Array<String>) {
@@ -24,11 +24,8 @@ export default abstract class BaseModerationCommand extends BaseCommand {
         const reason = reasonRaw.join(' ');
 
         if (reason.length > 1024) {
-            message.channel.send({
+            message.reply({
                 content: 'Reason must be less than 1024 characters, please try again',
-                reply: {
-                    messageReference: message,
-                },
             });
             return;
         }
@@ -36,11 +33,8 @@ export default abstract class BaseModerationCommand extends BaseCommand {
         var guildMember = await resolveMemberFromMessage(message, search);
 
         if (guildMember == null) {
-            message.channel.send({
+            message.reply({
                 content: 'Please tag the user or provide their ID and try again',
-                reply: {
-                    messageReference: message,
-                },
             });
             return;
         }
@@ -54,7 +48,7 @@ export default abstract class BaseModerationCommand extends BaseCommand {
     }
 
     async sendConfirmation(message: Message, guildMember: GuildMember, staffMember: GuildMember, reason: string) {
-        await message.channel.send({
+        await message.reply({
             embeds: [
                 {
                     color: Colors.Green,
@@ -85,9 +79,6 @@ export default abstract class BaseModerationCommand extends BaseCommand {
                     timestamp: new Date(),
                 },
             ],
-            reply: {
-                messageReference: message,
-            },
         });
     }
 
