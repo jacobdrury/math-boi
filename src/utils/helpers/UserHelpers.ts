@@ -1,4 +1,4 @@
-import { GuildMember, Message } from 'discord.js';
+import { CommandInteraction, GuildMember, Message } from 'discord.js';
 import DiscordClient from '../../client/client';
 import Guilds from '../../database/models/Guild';
 import User from '../../database/models/User';
@@ -38,6 +38,30 @@ export const GetMemberFromMessage = async (client: DiscordClient, message: Messa
                     messageReference: message,
                 },
             });
+            return;
+        }
+
+        if (search.accessLevel >= AccessLevel.Staff) client.staffMembers.set(search.discordId, search);
+        else client.guildMembers.set(search.discordId, search);
+
+        dbGuildMember = search;
+    }
+
+    return new Member(guildMember, dbGuildMember);
+};
+
+export const GetMemberFromInteraction = async (
+    client: DiscordClient,
+    interaction: CommandInteraction
+): Promise<Member> => {
+    const guildMember = interaction.member as GuildMember;
+    let dbGuildMember = client.staffMembers.get(guildMember.id) ?? client.guildMembers.get(guildMember.id);
+
+    // If user is not cached, check DB for user
+    if (!dbGuildMember) {
+        const search = await User.findOne({ inServer: true, discordId: guildMember.id });
+        if (!search) {
+            await interaction.followUp('Something went wrong');
             return;
         }
 

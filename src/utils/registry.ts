@@ -3,17 +3,30 @@ import { promises as fs } from 'fs';
 import DiscordClient from '../client/client';
 import BaseCommand from './structures/BaseCommand';
 import BaseEvent from './structures/BaseEvent';
+import { ApplicationCommandData } from 'discord.js';
 
 export async function registerCommands(client: DiscordClient, dir: string = '') {
     let count = 0;
     await loadCommands(client, dir, (command: BaseCommand) => {
-        client.commands.set(command.name, command);
+        client.commands.set(command.name.toLowerCase(), command);
         count++;
         command.aliases.forEach((alias: string) => {
-            client.commands.set(alias, command);
+            client.aliases.set(alias.toLowerCase(), command);
         });
     });
     console.log(`${count} commands loaded!`);
+}
+
+export async function registerSlashCommands(client: DiscordClient, dir: string = '') {
+    const data: Array<ApplicationCommandData> = client.commands.map((command: BaseCommand) => {
+        return {
+            name: command.name.toLowerCase(),
+            description: command.description ?? 'None',
+        };
+    });
+
+    const commands = await client.application.commands.set(data);
+    console.log(`${commands.size} slash commands loaded!`);
 }
 
 export async function loadCommands(client: DiscordClient, dir: string = '', callback: (command: BaseCommand) => any) {

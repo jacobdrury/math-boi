@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { CommandInteraction, GuildMember, Interaction, Message, User } from 'discord.js';
 import BaseCommand from '../../utils/structures/BaseCommand';
 import DiscordClient from '../../client/client';
 
@@ -38,6 +38,21 @@ export default class AvatarCommand extends BaseCommand {
                     },
                 ],
             });
+        });
+    }
+
+    async runSlash(client: DiscordClient, interaction: CommandInteraction, args: Array<string> | null) {
+        await interaction.followUp({
+            embeds: [
+                {
+                    title: `Your avatar avatar:`,
+                    image: {
+                        url: `${(interaction.member.user as User).displayAvatarURL({
+                            dynamic: true,
+                        })}`,
+                    },
+                },
+            ],
         });
     }
 }

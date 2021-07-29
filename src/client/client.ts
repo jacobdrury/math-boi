@@ -2,13 +2,14 @@ import { Client, ClientOptions, Collection } from 'discord.js';
 import BaseEvent from '../utils/structures/BaseEvent';
 import BaseCommand from '../utils/structures/BaseCommand';
 import LogManager from './LogManager';
-import { initializeEvents } from '../utils/registry';
+import { initializeEvents, registerSlashCommands } from '../utils/registry';
 import User, { UserSchemaInterface } from '../database/models/User';
 import { AccessLevel } from '../utils/structures/AccessLevel';
 import { CronJob } from 'cron';
 
 export default class DiscordClient extends Client {
     private _commands = new Collection<string, BaseCommand>();
+    private _aliases = new Collection<string, BaseCommand>();
     private _events = new Collection<string, BaseEvent>();
     private _staffMembers = new Collection<string, UserSchemaInterface>();
     private _guildMembers = new Collection<string, UserSchemaInterface>();
@@ -25,6 +26,7 @@ export default class DiscordClient extends Client {
             this.loadStaffMembers(),
             this.loadGuildMembers(),
             initializeEvents(this),
+            // registerSlashCommands(this, '../commands'),
         ]);
 
         console.log('Client Initialized!');
@@ -45,7 +47,7 @@ export default class DiscordClient extends Client {
         });
 
         staff.forEach((u) => this._staffMembers.set(u.discordId, u));
-        console.log('Staff Members Loaded!');
+        // console.log('Staff Members Loaded!');
     }
 
     async loadGuildMembers() {
@@ -56,7 +58,7 @@ export default class DiscordClient extends Client {
         });
 
         members.forEach((u) => this._guildMembers.set(u.discordId, u));
-        console.log('Guild Members Loaded!');
+        // console.log('Guild Members Loaded!');
     }
 
     set logManager(logManager: LogManager) {
@@ -77,6 +79,10 @@ export default class DiscordClient extends Client {
 
     get commands(): Collection<string, BaseCommand> {
         return this._commands;
+    }
+
+    get aliases(): Collection<string, BaseCommand> {
+        return this._aliases;
     }
 
     get events(): Collection<string, BaseEvent> {

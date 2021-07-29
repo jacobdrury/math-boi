@@ -1,18 +1,11 @@
-import { GuildMember, Message, Snowflake, TextChannel, UserResolvable } from 'discord.js';
+import { Message } from 'discord.js';
 import BaseCommand from '../../utils/structures/BaseCommand';
 import DiscordClient from '../../client/client';
-import Users from '../../database/models/User';
-import { resolveMemberFromMessage } from '../../utils/helpers/GuildHelpers';
-import Infraction, { InfractionType } from '../../database/models/Infraction';
-import { generateUuid } from '../../utils/helpers/util';
-import { LogType } from '../../client/LogManager';
-import BaseModerationCommand from '../../utils/structures/BaseModerationCommand';
-import User from '../../database/models/User';
-import { AccessLevel } from '../../utils/structures/AccessLevel';
 
 export default class PingCommand extends BaseCommand {
     constructor() {
         super('test', 'test');
+        this.description = 'This is the test command.';
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {

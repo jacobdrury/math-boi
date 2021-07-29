@@ -13,6 +13,6 @@
         "esModuleInterop": true,
         "resolveJsonModule": true
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "src/events/client/InteractionCreate.ts"],
     "exclude": ["src/**/*.spec.ts", "node_modules"]
 }

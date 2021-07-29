@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { CommandInteraction, Interaction, Message } from 'discord.js';
 import DiscordClient from '../../client/client';
 import { AccessLevel } from './AccessLevel';
 
@@ -49,4 +49,7 @@ export default abstract class BaseCommand {
     }
 
     abstract run(client: DiscordClient, message: Message, args: Array<string> | null): Promise<void>;
+    async runSlash(client: DiscordClient, interaction: CommandInteraction, args: Array<string> | null): Promise<void> {
+        await interaction.followUp(`${interaction.commandName} is not setup to be a slash command.`);
+    }
 }

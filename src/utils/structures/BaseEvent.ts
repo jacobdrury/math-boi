@@ -1,7 +1,13 @@
+import { ClientEvents } from 'discord.js';
 import DiscordClient from '../../client/client';
 
+const CustomEvents = 'infractionCreate' || 'interactionCreate';
+
 export default abstract class BaseEvent {
-    constructor(private _name: string, private _needsInitialization: boolean = false) {}
+    constructor(
+        private _name: keyof ClientEvents | typeof CustomEvents,
+        private _needsInitialization: boolean = false
+    ) {}
 
     get name(): string {
         return this._name;

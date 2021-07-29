@@ -1,5 +1,4 @@
-import { Collection, Message, OverwriteResolvable, PermissionOverwrites, Snowflake, TextChannel } from 'discord.js';
-import BaseCommand from '../../utils/structures/BaseCommand';
+import { Collection, Message, Snowflake, TextChannel } from 'discord.js';
 import DiscordClient from '../../client/client';
 import BaseModerationCommand from '../../utils/structures/BaseModerationCommand';
 import { AccessLevel } from '../../utils/structures/AccessLevel';
@@ -13,9 +12,8 @@ export default class LockCommand extends BaseModerationCommand {
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {
-        const channels = (await message.guild.channels.fetch()).filter(
-            (c) => /*!message.client.ids.opt.ignoredCategories.includes(c.parentID) && */ c.type == 'GUILD_TEXT'
-        );
+        const channels = await message.guild.channels.fetch();
+        // .filter((c) => /*!message.client.ids.opt.ignoredCategories.includes(c.parentID) && */ c.type == 'text');
 
         if (args[0] == 'on') await this.lock(message, channels as Collection<Snowflake, TextChannel>);
         else if (args[0] == 'off') await this.unlock(message, channels as Collection<Snowflake, TextChannel>);
@@ -28,16 +26,16 @@ export default class LockCommand extends BaseModerationCommand {
         const announcementC = null; //message.guild.channels.cache.get(message.client.ids.opt.channels.announcement);
 
         for (const [id, channel] of channels) {
-            await Promise.all([
-                channel.permissionOverwrites.edit(message.guild.id, {
-                    SEND_MESSAGES: false,
-                }),
-                channel.setName(`${channel.name}🔒`),
-                channel
-                    .send(`🔒 Channel locked please check ${announcementC || 'the announcements'} for more info 🔒`)
-                    .then((msg) => this.lockMsgIds.set(channel.id, `${msg.id}`))
-                    .catch(console.error),
-            ]);
+            // await Promise.all([
+            //     channel.permissionOverwrites.get(message.guild.id).update({
+            //         SEND_MESSAGES: false,
+            //     }),
+            //     channel.setName(`${channel.name}🔒`),
+            //     channel
+            //         .send(`🔒 Channel locked please check ${announcementC || 'the announcements'} for more info 🔒`)
+            //         .then((msg) => this.lockMsgIds.set(channel.id, `${msg.id}`))
+            //         .catch(console.error),
+            // ]);
         }
 
         if (announcementC) {
@@ -57,16 +55,16 @@ export default class LockCommand extends BaseModerationCommand {
 
     private unlock = async (message: Message, channels: Collection<Snowflake, TextChannel>) => {
         for (const [id, channel] of channels) {
-            await Promise.all([
-                channel.permissionOverwrites.edit(message.guild.id, {
-                    SEND_MESSAGES: null,
-                }),
-                channel.setName(channel.name.replace('🔒', '')),
-                channel.messages
-                    .fetch(this.lockMsgIds.get(channel.id))
-                    .then((msg) => msg.delete())
-                    .catch(console.error),
-            ]);
+            // await Promise.all([
+            //     channel.permissionOverwrites.get(message.guild.id).update({
+            //         SEND_MESSAGES: null,
+            //     }),
+            //     channel.setName(channel.name.replace('🔒', '')),
+            //     channel.messages
+            //         .fetch(this.lockMsgIds.get(channel.id))
+            //         .then((msg) => msg.delete())
+            //         .catch(console.error),
+            // ]);
         }
 
         // TODO

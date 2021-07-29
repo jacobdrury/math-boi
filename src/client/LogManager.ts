@@ -1,7 +1,5 @@
 import { Snowflake, TextChannel, WebhookClient } from 'discord.js';
-import LogConfig, {
-    LogConfigSchemaInterface,
-} from '../database/models/LogConfig';
+import LogConfig, { LogConfigSchemaInterface } from '../database/models/LogConfig';
 import DiscordClient from './client';
 
 export default class LogManager {
@@ -53,13 +51,12 @@ export default class LogManager {
     }
 
     async initLogChannel(logType: LogType, channel: TextChannel) {
-        const { id: WebhookId, token: WebhookToken } =
-            await channel.createWebhook(this._client.user.username, {
-                avatar: this._client.user.displayAvatarURL(),
-            });
+        const { id: WebhookId, token: WebhookToken } = await channel.createWebhook(this._client.user.username, {
+            avatar: this._client.user.displayAvatarURL(),
+        });
 
         const logConfig = await LogConfig.create({
-            guildId: channel.guildId,
+            guildId: channel.guild.id,
             logType,
             channelId: channel.id,
             WebhookId,
@@ -106,27 +103,18 @@ class Log {
         const config = await this.loadLogConfig(this.logType);
 
         if (config) {
-            const guild = await client.guilds.fetch(
-                config.guildId as Snowflake
-            );
+            const guild = await client.guilds.fetch(config.guildId as Snowflake);
 
-            this.channel = (await guild.channels.fetch(
-                config.channelId as Snowflake
-            )) as TextChannel;
+            this.channel = (await guild.channels.fetch(config.channelId as Snowflake)) as TextChannel;
 
             this.guildId = guild.id;
             this.logType = config.logType;
 
-            this.webhook = new WebhookClient(
-                config.WebhookId as Snowflake,
-                config.WebhookToken
-            );
+            this.webhook = new WebhookClient(config.WebhookId as Snowflake, config.WebhookToken);
         }
     }
 
-    private loadLogConfig = async (
-        logType: LogType
-    ): Promise<LogConfigSchemaInterface> => {
+    private loadLogConfig = async (logType: LogType): Promise<LogConfigSchemaInterface> => {
         let results = await LogConfig.findOne({
             logType,
         });

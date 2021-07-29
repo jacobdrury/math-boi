@@ -8,6 +8,7 @@ import TimeDifference from '../../utils/structures/TimeDifference';
 export default class CleanCommand extends BaseModerationCommand {
     constructor() {
         super('clean', 'Moderation', AccessLevel.Moderator);
+        this.description = 'Mass deletes messages from a channel.';
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {

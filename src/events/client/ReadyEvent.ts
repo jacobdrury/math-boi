@@ -8,5 +8,9 @@ export default class ReadyEvent extends BaseEvent {
     async run(client: DiscordClient) {
         console.log('Bot has logged in.');
         await client.initialize();
+        client.user.setPresence({
+            status: 'dnd',
+            activities: [{ type: 3 /*Watching*/, name: 'me get developed!' }],
+        });
     }
 }
