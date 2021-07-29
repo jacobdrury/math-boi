@@ -1,13 +1,22 @@
-import { CommandInteraction, GuildMember, Interaction, Message, User } from 'discord.js';
+import { CommandInteraction, GuildMember, Interaction, Message, Snowflake, User } from 'discord.js';
 import BaseCommand from '../../utils/structures/BaseCommand';
 import DiscordClient from '../../client/client';
+import { GetMemberFromInteraction } from '../../utils/helpers/UserHelpers';
 
 export default class AvatarCommand extends BaseCommand {
     constructor() {
         super('avatar', 'Basic');
         this.aliases = ['icon', 'pfp', 'av'];
-        this.description = 'Get the avatar URL of the tagged user(s), or your own avatar.';
+        this.description = 'Get the avatar URL of the tagged user, or your own avatar.';
         this.usage = '<User>';
+        this.options = [
+            {
+                name: 'user',
+                type: 'USER',
+                description: 'User to get profile picture from',
+                required: false,
+            },
+        ];
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {
@@ -27,29 +36,47 @@ export default class AvatarCommand extends BaseCommand {
             return;
         }
 
-        message.mentions.users.forEach((user) => {
-            message.channel.send({
-                embeds: [
-                    {
-                        title: `${user.username}'s avatar:`,
-                        image: {
-                            url: `${user.displayAvatarURL({ dynamic: true })}`,
-                        },
+        const user = message.mentions.users.first();
+
+        message.channel.send({
+            embeds: [
+                {
+                    title: `${user.username}'s avatar:`,
+                    image: {
+                        url: `${user.displayAvatarURL({ dynamic: true })}`,
                     },
-                ],
-            });
+                },
+            ],
         });
     }
 
     async runSlash(client: DiscordClient, interaction: CommandInteraction, args: Array<string> | null) {
-        await interaction.followUp({
+        const [user] = args;
+
+        if (!user) {
+            await interaction.reply({
+                embeds: [
+                    {
+                        title: `Your avatar avatar:`,
+                        image: {
+                            url: `${(interaction.member.user as User).displayAvatarURL({
+                                dynamic: true,
+                            })}`,
+                        },
+                    },
+                ],
+            });
+            return;
+        }
+
+        const member = await interaction.guild.members.fetch(user as Snowflake);
+
+        await interaction.reply({
             embeds: [
                 {
-                    title: `Your avatar avatar:`,
+                    title: `${member.user.username}'s avatar:`,
                     image: {
-                        url: `${(interaction.member.user as User).displayAvatarURL({
-                            dynamic: true,
-                        })}`,
+                        url: `${member.user.displayAvatarURL({ dynamic: true })}`,
                     },
                 },
             ],

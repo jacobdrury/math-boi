@@ -9,7 +9,7 @@ export default class InteractionCreateEvent extends BaseEvent {
 
     async run(client: DiscordClient, interaction: Interaction) {
         if (interaction.isCommand()) {
-            await interaction.defer().catch(console.error);
+            // await interaction.defer({ ephemeral: true }).catch(console.error);
 
             const cmd = client.commands.get(interaction.commandName);
             if (!cmd) {

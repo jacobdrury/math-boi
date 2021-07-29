@@ -26,7 +26,7 @@ export default class DiscordClient extends Client {
             this.loadStaffMembers(),
             this.loadGuildMembers(),
             initializeEvents(this),
-            // registerSlashCommands(this, '../commands'),
+            registerSlashCommands(this, '../commands'),
         ]);
 
         console.log('Client Initialized!');

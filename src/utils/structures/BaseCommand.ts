@@ -1,4 +1,4 @@
-import { CommandInteraction, Interaction, Message } from 'discord.js';
+import { ApplicationCommandOptionData, CommandInteraction, Interaction, Message } from 'discord.js';
 import DiscordClient from '../../client/client';
 import { AccessLevel } from './AccessLevel';
 
@@ -7,6 +7,7 @@ export default abstract class BaseCommand {
     private _description: string = '';
     private _usage: string = '';
     private _aliases: Array<string> = [];
+    private _options: Array<ApplicationCommandOptionData> = [];
 
     constructor(private _name: string, private _category: string, accessLevel: AccessLevel = AccessLevel.Base) {
         this._accessLevel = accessLevel;
@@ -48,8 +49,17 @@ export default abstract class BaseCommand {
         return this._aliases;
     }
 
+    set options(options: Array<ApplicationCommandOptionData>) {
+        this._options = options;
+    }
+
+    get options(): Array<ApplicationCommandOptionData> {
+        return this._options;
+    }
+
     abstract run(client: DiscordClient, message: Message, args: Array<string> | null): Promise<void>;
     async runSlash(client: DiscordClient, interaction: CommandInteraction, args: Array<string> | null): Promise<void> {
-        await interaction.followUp(`${interaction.commandName} is not setup to be a slash command.`);
+        await interaction.reply(`${interaction.commandName} is not setup to be a slash command.`);
     }
+    initializeOptions() {}
 }

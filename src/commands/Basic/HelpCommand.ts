@@ -4,12 +4,31 @@ import DiscordClient from '../../client/client';
 import { Colors } from '../../utils/helpers/Colors';
 import { GetMemberFromMessage, GetMemberFromInteraction } from '../../utils/helpers/UserHelpers';
 import Member from '../../utils/structures/Member';
+import client from '../..';
 
 export default class HelpCommand extends BaseCommand {
     constructor() {
         super('help', 'Basic');
         this.aliases = ['commands'];
         this.description = 'Displays the commands available';
+
+        this.options = [
+            {
+                name: 'cmd',
+                type: 'STRING',
+                description: 'Command to look up',
+                required: false,
+            },
+        ];
+    }
+
+    initializeOptions() {
+        this.options[0]['choices'] = client.commands.map((command: BaseCommand) => {
+            return {
+                name: command.name,
+                value: command.name.toLowerCase(),
+            };
+        });
     }
 
     async run(client: DiscordClient, message: Message, args: Array<string>) {
@@ -34,16 +53,20 @@ export default class HelpCommand extends BaseCommand {
 
     private async getCMD(
         client: DiscordClient,
-        paper: CommandInteraction | Message,
+        messagePath: CommandInteraction | Message,
         args: Array<string>,
         helpEmbed: MessageEmbed,
         commands: Collection<string, BaseCommand>
     ) {
-        const name = args[0];
+        const [name] = args;
         const command = commands.get(name);
 
         if (!command) {
-            await this.sendMsg(paper, `Could not find command: ${name}`);
+            if (messagePath instanceof CommandInteraction) {
+                await messagePath.reply({ content: `Could not find command: ${name}`, ephemeral: true });
+            } else if (messagePath instanceof Message) {
+                await messagePath.reply({ content: `Could not find command: ${name}` });
+            }
             return;
         }
 
@@ -51,12 +74,17 @@ export default class HelpCommand extends BaseCommand {
         if (command.aliases.length) helpEmbed.addField('**Aliases:**', command.aliases.join(', '), true);
         if (command.description.length) helpEmbed.addField('**Description:**', command.description);
         if (command.usage.length) helpEmbed.addField('**Usage:**', `${client.prefix}${command.name} ${command.usage}`);
-        await this.sendMsg(paper, { embeds: [helpEmbed], allowedMentions: { repliedUser: false } });
+
+        if (messagePath instanceof CommandInteraction) {
+            await messagePath.reply({ embeds: [helpEmbed], ephemeral: true });
+        } else if (messagePath instanceof Message) {
+            await messagePath.reply({ embeds: [helpEmbed], allowedMentions: { repliedUser: false } });
+        }
     }
 
     private async getAll(
         client: DiscordClient,
-        paper: CommandInteraction | Message,
+        messagePath: CommandInteraction | Message,
         member: Member,
         helpEmbed: MessageEmbed
     ) {
@@ -80,14 +108,10 @@ export default class HelpCommand extends BaseCommand {
             .setTitle("Here's a list of all my commands!")
             .setFooter(`You can send \`${client.prefix}help [command name]\` to get info on a specific command!`);
 
-        await this.sendMsg(paper, { embeds: [helpEmbed], allowedMentions: { repliedUser: false } });
-    }
-
-    private async sendMsg(paper: CommandInteraction | Message, content) {
-        if (paper instanceof CommandInteraction) {
-            await paper.followUp(content);
-        } else if (paper instanceof Message) {
-            await paper.reply(content);
+        if (messagePath instanceof CommandInteraction) {
+            await messagePath.reply({ embeds: [helpEmbed], ephemeral: true });
+        } else if (messagePath instanceof Message) {
+            await messagePath.reply({ embeds: [helpEmbed], allowedMentions: { repliedUser: false } });
         }
     }
 }
