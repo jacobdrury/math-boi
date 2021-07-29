@@ -27,8 +27,8 @@ export async function registerSlashCommands(client: DiscordClient, dir: string =
         };
     });
 
-    const commands = await client.application.commands.set(data);
-    console.log(`${commands.size} slash commands loaded!`);
+    // const commands = await client.application.commands.set(data);
+    // console.log(`${commands.size} slash commands loaded!`);
 }
 
 export async function loadCommands(dir: string = '', callback: (command: BaseCommand) => any) {
